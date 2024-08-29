@@ -46,4 +46,23 @@ class Bat extends PositionComponent
       EffectController(duration: 0.1),
     ));
   }
+
+  // Menambahkan efek zoom dan kembali ke ukuran semula
+  void onCollision() {
+    final effectController = EffectController(duration: 0.2);
+
+    // Zoom in dan kembali ke ukuran semula
+    add(
+      SequenceEffect([
+        ScaleEffect.to(
+          Vector2.all(1.3), // Zoom in scale factor
+          effectController,
+        ),
+        ScaleEffect.to(
+          Vector2.all(1.0), // Kembali ke ukuran semula
+          effectController,
+        ),
+      ]),
+    );
+  }
 }

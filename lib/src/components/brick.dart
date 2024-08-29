@@ -1,11 +1,10 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/effects.dart';
 import 'package:flutter/material.dart';
 
 import '../brick_breaker.dart';
 import '../config.dart';
-import 'ball.dart';
-import 'bat.dart';
 
 class Brick extends RectangleComponent
     with CollisionCallbacks, HasGameReference<BrickBreaker> {
@@ -23,13 +22,38 @@ class Brick extends RectangleComponent
   void onCollisionStart(
       Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
-    removeFromParent();
-    game.score.value++;                                         // Add this line
 
-    if (game.world.children.query<Brick>().length == 1) {
-      game.playState = PlayState.won;
-      game.world.removeAll(game.world.children.query<Ball>());
-      game.world.removeAll(game.world.children.query<Bat>());
-    }
+    final brick1 = RectangleComponent(
+      position: position + Vector2(-5, -5), // Slightly offset to simulate glitch
+      size: size,
+      paint: paint..color = Colors.red.withOpacity(0.8), 
+      anchor: Anchor.center,
+    );
+
+    final brick2 = RectangleComponent(
+      position: position + Vector2(5, 5), // Slightly offset to simulate glitch
+      size: size,
+      paint: paint..color = Colors.blue.withOpacity(0.8), 
+      anchor: Anchor.center,
+    );
+
+    brick1.add(OpacityEffect.fadeOut(
+      EffectController(duration: 0.2),
+      onComplete: () => brick1.removeFromParent(),
+    ));
+    brick2.add(OpacityEffect.fadeOut(
+      EffectController(duration: 0.2),
+      onComplete: () => brick2.removeFromParent(),
+    ));
+    game.world.add(brick1);
+    game.world.add(brick2);
+
+    add(OpacityEffect.fadeOut(
+      EffectController(duration: 0.2), 
+      onComplete: () {
+        removeFromParent(); 
+        game.score.value++;
+      },
+    ));
   }
 }
